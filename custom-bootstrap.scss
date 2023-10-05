@@ -1,0 +1,44 @@
+// lo scopo di questo progetto è importare i sorgenti di bootstrap, applicare le mie modifiche (colori, spaziature etc.)
+// e infine compilare una mia versione di bootstrap "personalizzata"
+
+// cominciamo provando a sovrascrivere i colori
+
+// importo i partials dove sono definite le variabili che intendo sovrascrivere
+@import 'scss/functions';
+// devo importare il partial _functions in quanto altrimenti _variables non verrebbe compilato correttamente
+// (possiede degli include che fanno a capo a variabili definite in _functions)
+@import 'scss/variables';
+
+$new-primary: $orange; // assegniamo il nuovo primary ad un orange preso dalle variables
+$new-warning: $pink;
+
+// ridefiniamo $theme-colors, ovvero la mappa in cui dentro il partial _variables vengono assegnati tutti i colori principali
+$new-theme-colors: (
+  'primary': $new-primary,
+  'warning': $new-warning,
+  'info': #cec288,
+);
+
+// ora vado a "fondere" insieme $new-theme-colors con l'originale $theme-colors
+
+$theme-colors: map-merge($theme-colors, $new-theme-colors);
+// ho riassegnato un nuovo valore a $theme-colors, iniettando il mio nuovo primary e lasciando intatti gli altri colori
+
+$new-spacers: (
+  5: $spacer * 30,
+  // creiamoci un nuovo valore!
+  6: $spacer * 50,
+);
+
+$spacers: map-merge($spacers, $new-spacers);
+
+@import 'scss/bootstrap.scss';
+
+// come mai importo nuovamente TUTTI i sorgenti di bootstrap come ultima riga? non dovrebbero andare a sovrascrivere
+// nuovamente tutte le mie modifiche, ripristinando i valori originali?
+// le nostre modifiche invece permangono fino al compilato finale in CSS in quanto praticamente TUTTE le variabili
+// di bootstrap sono state create in SCSS con un flag !default.
+// !default fa in modo che il valore della variabile appena creata le venga assegnato solamente se quella variabile
+// non esisteva già oppure se il suo valore precedente era null. Quindi poichè ad es. $theme-colors è una variabile
+// che abbiamo pre-dichiarato noi in custom-bootstrap.scss, al momento di venire riassegnata nel partial _variables.scss
+// il suo valore NON viene sovrascritto.
